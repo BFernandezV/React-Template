@@ -77,9 +77,7 @@ const DashboardAdmin = () => {
         className=" d-flex justify-content-between"
         style={styles.paperContainer}
       >
-        <div className="d-flex flex-column justify-content-center">
-          <Profile />
-        </div>
+        <div className="d-flex flex-column justify-content-center"></div>
 
         <div className="d-flex flex-column align-items-center justify-content-center">
           <LogoutButton />
@@ -198,11 +196,4 @@ const DashboardAdmin = () => {
   );
 };
 
-export default withAuthenticationRequired(DashboardAdmin, {
-  onRedirecting: () => (
-    <div className="position-absolute top-50 start-50 translate-middle">
-      {" "}
-      <CircularProgress />
-    </div>
-  ),
-});
+export default DashboardAdmin;

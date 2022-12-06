@@ -299,11 +299,4 @@ const ReportBuilder = () => {
   );
 };
 
-export default withAuthenticationRequired(ReportBuilder, {
-  onRedirecting: () => (
-    <div className="position-absolute top-50 start-50 translate-middle">
-      {" "}
-      <CircularProgress />
-    </div>
-  ),
-});
+export default ReportBuilder;
