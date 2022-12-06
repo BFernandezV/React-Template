@@ -12,7 +12,7 @@ root.render(
     <Auth0Provider
       domain="dev-baka831cvruhsmoz.eu.auth0.com"
       clientId="vRoxCX6FsfOg87fF7QTMYJGnOUSrTexs"
-      redirectUri="http://0.0.0.0:5002/dashboardAdmin"
+      redirectUri="https://0.0.0.0:5002/dashboardAdmin"
     >
       <ThemeProvider theme={ThemeApp}>
         <RouterProvider router={routerBrowser} />
