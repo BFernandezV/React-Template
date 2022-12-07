@@ -2,9 +2,8 @@ import React, { useState, useEffect } from "react";
 import Grid from "@mui/material/Unstable_Grid2";
 import Container from "@mui/material/Container";
 import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
-import Autocomplete from "@mui/material/Autocomplete";
+import OutlinedInput from '@mui/material/OutlinedInput';
 import Button from "@mui/material/Button";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -12,43 +11,107 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import backArrow from "../img/back.png";
+import FormControl from '@mui/material/FormControl';
 import Chip from "@mui/material/Chip";
 import FemaleIcon from "@mui/icons-material/Female";
 import MaleIcon from "@mui/icons-material/Male";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
+import axios from "axios";
 import { Link } from "react-router-dom";
 import SearchIcon from '@mui/icons-material/Search';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Slider from '@mui/material/Slider';
+import { DataGrid } from '@mui/x-data-grid';
 
 
+const columnsContaminants = [
+  { field: 'id', headerName: 'ID', width: 70 },
+  { field: 'name', headerName: 'Name', width: 130 },
+];
+
+const columnsFoods = [
+  { field: 'id', headerName: 'ID', width: 70 },
+  { field: 'name', headerName: 'Name', width: 130 },
+];
+
+import * as XLSX from 'xlsx/xlsx.mjs';
 
 
-const ReportBuilder = () => {
+function ReportBuilder() {
 
   function valuetext(value) {
     return `${value}KG`;
   }
 
+
+  const [originalRowsContaminants, setOriginalRowsContaminants] = useState({});
+  const [originalRowsFoods, setOriginalRowsFoods] = useState({});
+  const [rowsContaminants, setRowContaminants] = useState([]);
+  const [rowsFoods, setRowFoods] = useState([]);
   const [expanded, setExpanded] = useState(false);
+  const [checkedWomen, setCheckedWomen] = useState(false);
+  const [checkedMen, setCheckedMen] = useState(false);
+  const [valueSliderAge, setValueSliderAge] = useState([20, 37]);
+  const [valueSliderWeight, setValueSliderWeight] = useState([20, 37]);
+  const [selectedContaminants, setSelectedContaminants] = useState([]);
+  const [selectedFoods, setSelectedFoods] = useState([]);
+  const [searchContaminants, setSearchContaminants] = useState('');
+  const [searchFoods, setSearchFoods] = useState('');
+  const [disabledButtonFoods, setDisabledButtonFoods] = useState(true);
+  const [disabledButtonDownload, setDisabledButtonDownload] = useState(true);
+  const [sheetData, setSheetData] = useState({});
+  // const [loadingDownload, setLoadingDownload] = useState(false);
+  useEffect(() => {
+    getDataContaminants();
+  }, []);
+
+  useEffect(() => {
+    if (selectedContaminants.length > 0)
+      setDisabledButtonFoods(false);
+    else
+      (setDisabledButtonFoods(true));
+
+    if (selectedContaminants.length > 0 && selectedFoods.length > 0)
+      setDisabledButtonDownload(false);
+    else
+      setDisabledButtonDownload(true);
+  }, [selectedContaminants, selectedFoods, checkedMen, checkedWomen,]);
+
+  function getDataContaminants() {
+    return axios.get('http://fabrica.inf.udec.cl:5001/contaminantes')
+      .then((response) => {
+        const responseData = response.data;
+        const data = responseData.map((element, index) => { return { id: index, name: element }; });
+        setOriginalRowsContaminants(data);
+        setRowContaminants(data);
+      });
+  }
+
+  function getDataFoods() {
+    let alimentosData = selectedContaminants.map(element => element.name);
+    return axios.post('http://fabrica.inf.udec.cl:5001/alimentos',
+      { contaminantes: alimentosData }
+    )
+      .then((response) => {
+        setOriginalRowsFoods(response.data.map((element, index) => { return { id: index, name: element }; }));
+        setRowFoods(response.data.map((element, index) => { return { id: index, name: element }; }));
+      });
+  }
+
+
+  const handleChangeWomen = (event) => {
+    setCheckedWomen(event.target.checked);
+  };
+
+  const handleChangeMen = (event) => {
+    setCheckedMen(event.target.checked);
+  };
 
   const handleChangeAccordion = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
-
-  function createData(id, name, type) {
-    return { id, name, type };
-  }
-
-  const [valueSliderAge, setValueSliderAge] = React.useState([20, 37]);
-  const [valueSliderWeight, setValueSliderWeight] = React.useState([20, 37]);
 
   const handleChangeSliderAge = (event, newValue) => {
     setValueSliderAge(newValue);
@@ -56,36 +119,113 @@ const ReportBuilder = () => {
   const handleChangeSliderWeight = (event, newValue) => {
     setValueSliderWeight(newValue);
   };
-  const rowsFoods = [
-    createData(1, `Alimento1`, `Tipo1`),
-    createData(2, `Alimento2`, `Tipo2`),
-    createData(3, `Alimento3`, `Tipo3`),
-    createData(4, `Alimento4`, `Tipo4`),
-    createData(5, `Alimento5`, `Tipo5`),
-    createData(6, `Alimento6`, `Tipo6`),
-    createData(7, `Alimento7`, `Tipo7`),
-    createData(8, `Alimento8`, `Tipo8`),
-    createData(9, `Alimento9`, `Tipo9`),
-    createData(10, `Alimento10`, `Tipo10`),
-    createData(11, `Alimento11`, `Tipo11`),
-    createData(12, `Alimento12`, `Tipo12`),
-    createData(13, `Alimento13`, `Tipo13`),
-  ];
-  const rowsContaminantes = [
-    createData(1, `Contaminante1`, `Tipo1`),
-    createData(2, `Contaminante2`, `Tipo2`),
-    createData(3, `Contaminante3`, `Tipo3`),
-    createData(4, `Contaminante4`, `Tipo4`),
-    createData(5, `Contaminante5`, `Tipo5`),
-    createData(6, `Contaminante6`, `Tipo6`),
-    createData(7, `Contaminante7`, `Tipo7`),
-    createData(8, `Contaminante8`, `Tipo8`),
-    createData(9, `Contaminante9`, `Tipo9`),
-    createData(10, `Contaminante10`, `Tipo10`),
-    createData(11, `Contaminante11`, `Tipo11`),
-    createData(12, `Contaminante12`, `Tipo12`),
-    createData(13, `Contaminante13`, `Tipo13`),
-  ];
+
+  const handleSelectedContaminats = (arrayItems) => {
+    const selectedIDs = new Set(arrayItems);
+    const selectedRowData = rowsContaminants.filter((row) => selectedIDs.has(row.id)
+    );
+
+    setSelectedContaminants(Array.from(selectedRowData));
+  };
+  const handleSelectedFoods = (arrayItems) => {
+    const selectedIDs = new Set(arrayItems);
+    const selectedRowData = rowsFoods.filter((row) => selectedIDs.has(row.id)
+    );
+
+    setSelectedFoods(Array.from(selectedRowData));
+  };
+
+  const requestSearchContaminants = (searchedVal) => {
+    setSearchContaminants(searchedVal.target.value);
+    const filteredRows = originalRowsContaminants.filter((row) => {
+      return row.name.toLowerCase().includes(searchedVal.target.value.toLowerCase());
+    });
+    setRowContaminants(Array.from(filteredRows));
+  };
+
+  const requestSearchFoods = (searchedVal) => {
+    setSearchFoods(searchedVal.target.value);
+    const filteredRows = originalRowsFoods.filter((row) => {
+      return row.name.toLowerCase().includes(searchedVal.target.value.toLowerCase());
+    });
+    setRowFoods(Array.from(filteredRows));
+  };
+
+  const handleData = (dataSheet) => {
+    let resultContaminantes = [];
+    let resultAlimentos = [];
+
+    console.log(dataSheet)
+
+
+    for (let contaminant in dataSheet) {
+      let arrayExtra = []
+      let objectContaCont = { contaminante: contaminant, ...dataSheet[contaminant] }
+      delete objectContaCont.alimentos
+      resultContaminantes.push(objectContaCont);
+
+      for (let alimento in dataSheet[contaminant].alimentos) {
+        let objectContaAli = { alimento: alimento, ...dataSheet[contaminant].alimentos[alimento] }
+        arrayExtra.push(objectContaAli)
+      }
+      resultAlimentos.push(arrayExtra);
+      arrayExtra = []
+    }
+
+    setSheetData(resultContaminantes)
+    handleOnExport(resultContaminantes, resultAlimentos);
+
+  }
+
+  const handleOnExport = (resultContaminantes, resultAlimentos) => {
+    let wb = XLSX.utils.book_new();
+    let ws = XLSX.utils.json_to_sheet(resultContaminantes);
+
+
+    XLSX.utils.book_append_sheet(wb, ws, "Datos Contaminantes");
+
+    resultContaminantes.map((conta, index) => {
+      let extraWS = []
+      extraWS = XLSX.utils.json_to_sheet(resultAlimentos[index])
+      XLSX.utils.book_append_sheet(wb, extraWS, conta.contaminante);
+    })
+
+    let fecha = new Date().toLocaleDateString()
+    XLSX.writeFile(wb, `reporte_${fecha}.xlsx`);
+
+  };
+
+  const handleDownloadButton = () => {
+    let gender = "";
+    if (checkedWomen && checkedMen)
+      gender = "0";
+    else if (checkedWomen)
+      gender = "2";
+    else if (checkedMen)
+      gender = "1";
+    else
+      gender = "0";
+
+    return axios.post('http://fabrica.inf.udec.cl:5001/reporte',
+      {
+        sexo: gender,
+        min_edad: valueSliderAge[0],
+        max_edad: valueSliderAge[1],
+        min_peso: valueSliderWeight[0],
+        max_peso: valueSliderWeight[1],
+        min_altura: "0",
+        max_altura: "300",
+        contaminantes: selectedContaminants.map(element => element.name),
+        alimentos: selectedFoods.map(element => element.name)
+      }
+    )
+      .then((response) => {
+        handleData(response.data)
+      });
+  };
+
+
+
   return (
     <Container maxWidth="xxl" className="overflow-hidden p-0">
       <Container maxWidth="false" className="my-5 m-0 px-5">
@@ -108,44 +248,24 @@ const ReportBuilder = () => {
               >
                 <Typography>Contaminantes</Typography>
               </AccordionSummary>
-              <AccordionDetails>
-                <TextField
-                  label="Search"
-                  id="outlined-size-small"
-                  size="small"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                <TableContainer sx={{ maxHeight: 300 }}>
-                  <Table size="small" stickyHeader aria-label="dense table">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>#</TableCell>
-                        <TableCell align="left">Nombre</TableCell>
-                        <TableCell align="left">Tipo</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {rowsContaminantes.map((row) => (
-                        <TableRow
-                          hover role="checkbox"
-                          key={row.id}
-                          sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                        >
-                          <TableCell component="th" scope="row">
-                            {row.id}
-                          </TableCell>
-                          <TableCell align="left">{row.name}</TableCell>
-                          <TableCell align="left">{row.type}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+              <AccordionDetails className="d-flex flex-column align-items-start">
+                <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined" className="align-self-end">
+                  <OutlinedInput
+                    id="outlined-adornment-weight"
+                    aria-describedby="outlined-weight-helper-text"
+                    endAdornment={<InputAdornment position="end"><SearchIcon /></InputAdornment>}
+                    size="small"
+                    value={searchContaminants}
+                    onChange={(searchVal) => requestSearchContaminants(searchVal)} />
+                </FormControl>
+                <TableContainer sx={{ maxHeight: 300 }} style={{ height: 400, width: '100%' }}>
+                  <DataGrid
+                    rows={rowsContaminants}
+                    columns={columnsContaminants}
+                    pageSize={5}
+                    rowsPerPageOptions={[5]}
+                    checkboxSelection
+                    onSelectionModelChange={(event) => handleSelectedContaminats(event)} />
                 </TableContainer>
               </AccordionDetails>
             </Accordion>
@@ -158,43 +278,28 @@ const ReportBuilder = () => {
                 <Typography>Alimentos</Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <TextField
-                  label="Search"
-                  id="outlined-size-small"
-                  size="small"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                <TableContainer sx={{ maxHeight: 300 }}>
-                  <Table size="small" stickyHeader aria-label="dense table">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>#</TableCell>
-                        <TableCell align="left">Nombre</TableCell>
-                        <TableCell align="left">Tipo</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {rowsFoods.map((row) => (
-                        <TableRow
-                          hover role="checkbox"
-                          key={row.id}
-                          sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                        >
-                          <TableCell component="th" scope="row">
-                            {row.id}
-                          </TableCell>
-                          <TableCell align="left">{row.name}</TableCell>
-                          <TableCell align="left">{row.type}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                <div className="d-flex align-items-center justify-content-between">
+                  <Button variant="contained" disabled={disabledButtonFoods} onClick={getDataFoods}>Buscar Datos</Button>
+                  <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">
+                    <OutlinedInput
+                      id="outlined-adornment-weight"
+                      aria-describedby="outlined-weight-helper-text"
+                      endAdornment={<InputAdornment position="end"><SearchIcon /></InputAdornment>}
+                      size="small"
+                      value={searchFoods}
+                      onChange={(searchVal) => requestSearchFoods(searchVal)} />
+                  </FormControl>
+                </div>
+
+
+                <TableContainer sx={{ maxHeight: 300 }} style={{ height: 400, width: '100%' }}>
+                  <DataGrid
+                    rows={rowsFoods}
+                    columns={columnsFoods}
+                    pageSize={5}
+                    rowsPerPageOptions={[5]}
+                    checkboxSelection
+                    onSelectionModelChange={(event) => handleSelectedFoods(event)} />
                 </TableContainer>
               </AccordionDetails>
             </Accordion>
@@ -211,8 +316,8 @@ const ReportBuilder = () => {
                   <div>
                     <Typography className="mb-2">Sexo</Typography>
                     <FormGroup>
-                      <FormControlLabel control={<Checkbox />} label="Masculino" />
-                      <FormControlLabel control={<Checkbox />} label="Femenino" />
+                      <FormControlLabel checked={checkedWomen} onChange={handleChangeWomen} control={<Checkbox />} label="Femenino" />
+                      <FormControlLabel checked={checkedMen} onChange={handleChangeMen} control={<Checkbox />} label="Masculino" />
                     </FormGroup>
                   </div>
                   <div>
@@ -222,8 +327,7 @@ const ReportBuilder = () => {
                       value={valueSliderAge}
                       onChange={handleChangeSliderAge}
                       valueLabelDisplay="auto"
-                      getAriaValueText={valuetext}
-                    />
+                      getAriaValueText={valuetext} />
                   </div>
                   <div>
                     <Typography className="mb-2">Rango de peso (KG)</Typography>
@@ -232,8 +336,7 @@ const ReportBuilder = () => {
                       value={valueSliderWeight}
                       onChange={handleChangeSliderWeight}
                       valueLabelDisplay="auto"
-                      getAriaValueText={valuetext}
-                    />
+                      getAriaValueText={valuetext} />
                   </div>
 
                 </Stack>
@@ -251,48 +354,48 @@ const ReportBuilder = () => {
             </Typography>
             <div className="d-flex flex-column gap-2">
               <Typography variant="subtitle1">Selección de contaminantes</Typography>
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Chip label="Contaminante 1" />
-                <Chip label="Contaminante 2" />
-                <Chip label="Contaminante 3" />
-              </Stack>
+              <div className="d-flex flex-row flex-wrap gap-2">
+                {selectedContaminants.length > 0 ? selectedContaminants.map(contaminant => <Chip label={contaminant.name} key={contaminant.id} />
+                ) : ""}
+              </div>
             </div>
             <div className="d-flex flex-column gap-2">
               <Typography variant="subtitle1">Selección de alimentos</Typography>
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Chip label="Alimento 1" />
-                <Chip label="Alimento 2" />
-                <Chip label="Alimento 3" />
-              </Stack>
+              <div className="d-flex flex-row flex-wrap gap-2">
+                {selectedFoods.length !== 0 ? selectedFoods.map(food => <Chip label={food.name} key={food.id} />
+                ) : ""}
+              </div>
             </div>
             <div className="d-flex flex-column gap-2">
               <Typography variant="subtitle1">Filtros de población</Typography>
               <Stack direction="row" spacing={2} alignItems="center">
-                <div
+                {checkedWomen ? <div
                   className="rounded-circle d-flex justify-content-center align-items-center"
                   style={{ backgroundColor: "#ebebeb", width: "32px", height: "32px" }}
                 >
                   <FemaleIcon />
-                </div>
-                <div
+                </div> : ""}
+
+                {checkedMen ? <div
                   className="rounded-circle d-flex justify-content-center align-items-center"
                   style={{ backgroundColor: "#ebebeb", width: "32px", height: "32px" }}
                 >
                   <MaleIcon />
-                </div>
+                </div> : ''}
 
-                <Chip label="18 - 40 años" />
-                <Chip label="70 - 100 KG" />
+
+                <Chip label={`${valueSliderAge[0]} años - ${valueSliderAge[1]} años`} />
+                <Chip label={`${valueSliderWeight[0]} KG - ${valueSliderWeight[1]} KG`} />
               </Stack>
             </div>
             <div className="w-100 d-flex justify-content-end">
-              <Button variant="contained">Descargar Reporte</Button>
+              <Button variant="contained" disabled={disabledButtonDownload} onClick={handleDownloadButton}>Descargar Reporte</Button>
             </div>
           </Container>
         </Grid>
       </Grid>
-    </Container >
+    </Container>
   );
-};
+}
 
 export default ReportBuilder;

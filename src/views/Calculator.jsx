@@ -50,19 +50,16 @@ const calculator = () => {
   const [validateWeight, setValidateWeight] = useState(false)
   const [validateAmount, setValidateAmount] = useState(false)
   const [validateFood, setValidateFood] = useState(false)
-  let validation = false
 
   function getDataFoods() {
-    return axios('http://127.0.0.1:5000/request_alimentos')
+    return axios.get('http://fabrica.inf.udec.cl:5001/alimentos')
       .then((response) => setFoods(response.data))
   }
 
 
-
-
   useEffect(() => {
     if (!firstTime) {
-      const data = getDataFoods()
+      getDataFoods()
       firstTime = true
     }
     if (!complete) {
@@ -105,7 +102,7 @@ const calculator = () => {
     setComponentResult(<CircularProgress />)
     setComplete(false);
     axios
-      .post("http://127.0.0.1:5000/calculadora", { weight: weight, amount: amount, food: food })
+      .post("http://fabrica.inf.udec.cl:5001/calculadora", { weight: weight, amount: amount, food: food })
       .then(function (response) {
         // handle success
         console.log(response.data);
