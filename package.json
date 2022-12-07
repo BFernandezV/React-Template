@@ -1,8 +1,10 @@
 {
   "name": "frontend",
+  "homepage": "http://fabrica.inf.udec.cl:5002",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@auth0/auth0-react": "^1.12.0",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
     "@fontsource/roboto": "^4.5.8",
@@ -35,7 +37,7 @@
     "prettier": "^2.7.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set PORT=5002 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

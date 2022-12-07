@@ -24,6 +24,8 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Slider from '@mui/material/Slider';
 import { DataGrid } from '@mui/x-data-grid';
+import CircularProgress from "@mui/material/CircularProgress";
+import { withAuthenticationRequired } from "@auth0/auth0-react";
 
 
 const columnsContaminants = [
@@ -109,7 +111,7 @@ function ReportBuilder() {
     setCheckedMen(event.target.checked);
   };
 
-  const handleChangeAccordion = (panel) => (event, isExpanded) => {
+  const handleChangeAccordion = panel => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
 
@@ -230,7 +232,12 @@ function ReportBuilder() {
     <Container maxWidth="xxl" className="overflow-hidden p-0">
       <Container maxWidth="false" className="my-5 m-0 px-5">
         <Link to="/dashboardAdmin">
-          <img href="/" src={backArrow} className="img-fluid img-arrow" style={{ width: "40px", height: "40px" }}></img>
+          <img
+            href="/"
+            src={backArrow}
+            className="img-fluid img-arrow"
+            style={{ width: "40px", height: "40px" }}
+          ></img>
         </Link>
       </Container>
 
@@ -240,7 +247,7 @@ function ReportBuilder() {
             <Typography variant="h4" className="fw-bold mb-3">
               Generador de reportes
             </Typography>
-            <Accordion expanded={expanded === 'panel1'} onChange={handleChangeAccordion('panel1')}>
+            <Accordion expanded={expanded === "panel1"} onChange={handleChangeAccordion("panel1")}>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel1a-content"
@@ -269,7 +276,7 @@ function ReportBuilder() {
                 </TableContainer>
               </AccordionDetails>
             </Accordion>
-            <Accordion expanded={expanded === 'panel2'} onChange={handleChangeAccordion('panel2')}>
+            <Accordion expanded={expanded === "panel2"} onChange={handleChangeAccordion("panel2")}>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel2a-content"
@@ -302,8 +309,8 @@ function ReportBuilder() {
                     onSelectionModelChange={(event) => handleSelectedFoods(event)} />
                 </TableContainer>
               </AccordionDetails>
-            </Accordion>
-            <Accordion expanded={expanded === 'panel3'} onChange={handleChangeAccordion('panel3')}>
+            </Accordion >
+            <Accordion expanded={expanded === "panel3"} onChange={handleChangeAccordion("panel3")}>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel3a-content"
@@ -323,7 +330,7 @@ function ReportBuilder() {
                   <div>
                     <Typography className="mb-2">Rango de edad (Años)</Typography>
                     <Slider
-                      getAriaLabel={() => 'Temperature range'}
+                      getAriaLabel={() => "Temperature range"}
                       value={valueSliderAge}
                       onChange={handleChangeSliderAge}
                       valueLabelDisplay="auto"
@@ -332,18 +339,17 @@ function ReportBuilder() {
                   <div>
                     <Typography className="mb-2">Rango de peso (KG)</Typography>
                     <Slider
-                      getAriaLabel={() => 'Temperature range'}
+                      getAriaLabel={() => "Temperature range"}
                       value={valueSliderWeight}
                       onChange={handleChangeSliderWeight}
                       valueLabelDisplay="auto"
                       getAriaValueText={valuetext} />
                   </div>
-
                 </Stack>
               </AccordionDetails>
             </Accordion>
-          </Container>
-        </Grid>
+          </Container >
+        </Grid >
         <Grid xs={6}>
           <Container
             className="p-0 d-flex flex-column justify-content-center px-4 py-3 align-items-start bg-white border shadow-sm rounded gap-4"
@@ -393,9 +399,16 @@ function ReportBuilder() {
             </div>
           </Container>
         </Grid>
-      </Grid>
-    </Container>
+      </Grid >
+    </Container >
   );
 }
 
-export default ReportBuilder;
+export default withAuthenticationRequired(ReportBuilder, {
+  onRedirecting: () => (
+    <div className="position-absolute top-50 start-50 translate-middle">
+      {" "}
+      <CircularProgress />
+    </div>
+  ),
+});

@@ -10,10 +10,10 @@ import Button from "@mui/material/Button";
 import axios from "axios";
 import warningImg from "../img/warning.png";
 import greatImg from "../img/great.png";
-import CircularProgress from '@mui/material/CircularProgress';
+import CircularProgress from "@mui/material/CircularProgress";
 import backArrow from "../img/back.png";
 import { Link } from "react-router-dom";
-import './../css/calculator.css';
+import "./../css/calculator.css";
 
 // eslint-disable-next-line react/prop-types
 const Result = ({ textResult, subtitleResult, imgSource }) => {
@@ -23,7 +23,13 @@ const Result = ({ textResult, subtitleResult, imgSource }) => {
         {textResult}
       </Typography>
       <img src={imgSource} />
-      <Typography className="fw-light text-center" variant="subtitle1" gutterBottom color="white.main" width="60%">
+      <Typography
+        className="fw-light text-center"
+        variant="subtitle1"
+        gutterBottom
+        color="white.main"
+        width="60%"
+      >
         {subtitleResult}
       </Typography>
     </Container>
@@ -39,9 +45,9 @@ const calculator = () => {
     { id: 4, label: "Pan4" },
     { id: 5, label: "Pan5" },
     { id: 6, label: "Pan6" },
-    { id: 7, label: "Pan7" }
+    { id: 7, label: "Pan7" },
   ]);
-  let firstTime = false
+  let firstTime = false;
   const [componentResult, setComponentResult] = useState(false);
   const [valueResult, setValueResult] = useState("");
   const [weight, setWeight] = useState(null);
@@ -88,18 +94,17 @@ const calculator = () => {
   }, [complete]);
 
   const validateFields = function () {
-    if (weight === null) setValidateWeight(true)
-    if (food === "") setValidateFood(true)
-    if (amount === null) setValidateAmount(true)
-    return weight === null || food === "" || amount === null
-
-  }
+    if (weight === null) setValidateWeight(true);
+    if (food === "") setValidateFood(true);
+    if (amount === null) setValidateAmount(true);
+    return weight === null || food === "" || amount === null;
+  };
 
   const calculateContamination = function () {
-    if (validateFields()) return
+    if (validateFields()) return;
     console.log("CALCULANDO...");
 
-    setComponentResult(<CircularProgress />)
+    setComponentResult(<CircularProgress />);
     setComplete(false);
     axios
       .post("http://fabrica.inf.udec.cl:5001/calculadora", { weight: weight, amount: amount, food: food })
@@ -107,24 +112,27 @@ const calculator = () => {
         // handle success
         console.log(response.data);
         setComplete(true);
-        response.data === "Dañino para la salud" ? setValueResult("Contaminado") : setValueResult("No Contaminado");
+        response.data === "Dañino para la salud"
+          ? setValueResult("Contaminado")
+          : setValueResult("No Contaminado");
       })
       .catch(function (error) {
         // handle error
         console.log(error);
       });
-
   };
 
   return (
     <Container maxWidth="false" className="vh-100 overflow-hidden p-0">
       <Container maxWidth="xl" className="my-5 m-0 px-5">
         <Link to="/">
-          <img href="/" src={backArrow} className="img-fluid img-arrow" style={{ width: "40px", height: "40px" }}></img>
+          <img
+            href="/"
+            src={backArrow}
+            className="img-fluid img-arrow"
+            style={{ width: "40px", height: "40px" }}
+          ></img>
         </Link>
-
-
-
       </Container>
       <Grid container spacing={2} className="vh-100 d-flex">
         <Grid xs={6}>
@@ -160,12 +168,12 @@ const calculator = () => {
                   variant="filled"
                   error={validateWeight}
                   hiddenLabel
-                  onChange={(evento) => {
-                    setWeight(evento.target.value !== "" ? parseFloat(evento.target.value) : null)
-                    setValidateWeight(false)
+                  onChange={evento => {
+                    setWeight(evento.target.value !== "" ? parseFloat(evento.target.value) : null);
+                    setValidateWeight(false);
                   }}
                   InputProps={{
-                    startAdornment: <InputAdornment position="start">kg</InputAdornment>
+                    startAdornment: <InputAdornment position="start">kg</InputAdornment>,
                   }}
                   helperText=""
                 />
@@ -195,9 +203,9 @@ const calculator = () => {
                   id="combo-box-demo"
                   options={foods}
                   fullWidth
-                  onChange={(evento) => {
-                    setFood(evento.target.textContent)
-                    setValidateFood(false)
+                  onChange={evento => {
+                    setFood(evento.target.textContent);
+                    setValidateFood(false);
                   }}
                   renderInput={params => (
                     <TextField
@@ -239,11 +247,11 @@ const calculator = () => {
                   hiddenLabel
                   error={validateAmount}
                   InputProps={{
-                    startAdornment: <InputAdornment position="start">g/día</InputAdornment>
+                    startAdornment: <InputAdornment position="start">g/día</InputAdornment>,
                   }}
-                  onChange={(evento) => {
-                    setAmount(evento.target.value !== "" ? parseFloat(evento.target.value) : null)
-                    setValidateAmount(false)
+                  onChange={evento => {
+                    setAmount(evento.target.value !== "" ? parseFloat(evento.target.value) : null);
+                    setValidateAmount(false);
                   }}
                 />
               </Container>
@@ -265,11 +273,11 @@ const calculator = () => {
               height: "70vh",
               borderRadius: "250px 0px 0px 250px",
               backgroundColor: `${valueResult === ""
-                ? "#d9d9d9"
-                : valueResult === "Contaminado"
-                  ? "#FF7C7C"
-                  : "#82E0AA"
-                }`
+                  ? "#d9d9d9"
+                  : valueResult === "Contaminado"
+                    ? "#FF7C7C"
+                    : "#82E0AA"
+                }`,
             }}
           >
             {componentResult}

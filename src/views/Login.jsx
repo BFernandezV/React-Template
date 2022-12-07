@@ -1,5 +1,5 @@
 //import "../styles/Home.css";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -12,13 +12,22 @@ import {
   OutlinedInput,
   IconButton,
   Input,
+  Alert,
+  AlertTitle,
 } from "@mui/material";
 import { AccountCircle, Visibility, VisibilityOff } from "@mui/icons-material/";
 import Grid from "@mui/material/Unstable_Grid2";
 import { NavLink, Link } from "react-router-dom";
+import axios from "axios";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const Login = () => {
-  const [values, setValues] = React.useState({
+  const [valueSession, setValueSession] = useState(false);
+  const [showErrorEmail, setErrorEmail] = useState(false);
+  const [showErrorPass, setErrorPass] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [show, setShow] = useState(false);
+  const [values, setValues] = useState({
     email: "",
     password: "",
     showPassword: false,
@@ -27,13 +36,45 @@ const Login = () => {
     setValues({ ...values, [prop]: event.target.value });
   };
 
+  const handleClose = () => setShow(false);
+
   const handleClickShowPassword = () => {
     setValues({
       ...values,
       showPassword: !values.showPassword,
     });
   };
+  const setSignIn = function () {
+    return axios
+      .post(
+        "http://127.0.0.1:5000/login",
+        { email: values.email, password: values.password },
+        {
+          withCredentials: true,
+          headers: { "Access-Control-Allow-Origin": "*", "Content-Type": "application/json" },
+        }
+      )
+      .then(function (response) {
+        // handle success
+        //console.log(response.data["status"]);
 
+        if (response.data["status"] == "error") {
+          setErrorMessage(response.data["message"]);
+          setValueSession(false);
+          if (response.data["message"] == "Usuario incorrecto") {
+            setErrorEmail(true);
+          } else if (response.data["message"] == "Contraseña incorrecta") {
+            setErrorPass(true);
+          }
+        } else if (response.data["status"] == "success") setValueSession(true);
+        console.log(valueSession);
+        //response.data["status"] === "error" ? setValueSession(false) : setValueSession(true);
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      });
+  };
   const handleMouseDownPassword = event => {
     event.preventDefault();
   };
@@ -87,6 +128,7 @@ const Login = () => {
             <Typography variant="h4" align="center" gutterBottom className="fw-semibold">
               Acceso
             </Typography>
+
             <Stack spacing={3}>
               <FormControl variant="standard">
                 <InputLabel htmlFor="outlined-with-icon-adornment">Email</InputLabel>
@@ -94,6 +136,7 @@ const Login = () => {
                   id="email"
                   label="Email"
                   value={values.email}
+                  error={showErrorEmail}
                   onChange={handleChange("email")}
                   endAdornment={
                     <InputAdornment position="end">
@@ -107,6 +150,7 @@ const Login = () => {
                 <Input
                   id="password"
                   label="Password"
+                  error={showErrorPass}
                   type={values.showPassword ? "text" : "password"}
                   value={values.password}
                   onChange={handleChange("password")}
@@ -133,11 +177,9 @@ const Login = () => {
             <p></p>
             <Stack spacing={3}>
               <div className="d-flex flex-column  align-items-center">
-                <Link to="/reportBuilder">
-                  <Button variant="contained" color="primary">
-                    Iniciar sesión
-                  </Button>
-                </Link>
+                <Button variant="contained" color="primary" onClick={() => setSignIn()}>
+                  Iniciar sesión
+                </Button>
               </div>
               <div className="d-flex flex-column  align-items-center">
                 <NavLink to="" style={{ textDecoration: "none" }}>

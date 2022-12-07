@@ -3,11 +3,12 @@ import React from "react";
 import { Container, Typography, Button, Stack } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
 import { NavLink } from "react-router-dom";
-
+import { LoginButton } from "../components/Login2";
+import { LogoutButton } from "../components/Logout";
 const Home = () => {
   return (
     <Container maxWidth="false" className="overflow-hidden p-0">
-      <Grid container spacing={2} className="vh-100 d-flex align-items-center">
+      <Grid container spacing={6} className="vh-100 d-flex align-items-center">
         <Grid xs={6}>
           <Container maxWidth="xs" style={{ marginStart: "100px" }}>
             <div className="d-flex flex-column justify-content-center align-items-start w-100">
@@ -32,7 +33,7 @@ const Home = () => {
                       Calculadora
                     </Button>
                   </NavLink>
-                  <NavLink to="login" style={{ textDecoration: "none" }}>
+                  <NavLink to="dashboardAdmin" style={{ textDecoration: "none" }}>
                     <Button variant="contained" color="primary">
                       Administrador
                     </Button>
